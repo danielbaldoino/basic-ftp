@@ -3,7 +3,6 @@ import { File } from 'buffer'
 import cors from 'cors'
 import express from 'express'
 import fs from 'fs/promises'
-import multer from 'multer'
 import os from 'os'
 import path from 'path'
 
@@ -15,14 +14,11 @@ app.use(express.json())
 app.use(express.raw({ type: 'application/vnd.custom-type' }))
 app.use(express.text({ type: 'text/html' }))
 
-const storage = multer.memoryStorage()
-const upload = multer({ storage })
-
 app.get('/', (req, res) => {
   res.status(200).send({ status: 'ok' })
 })
 
-app.post('/', upload.single('file'), async (req, res) => {
+app.post('/', async (req, res) => {
   const { file, remotePath } = req.body as { file: File; remotePath: string }
 
   const name = `${Math.random().toString(36).slice(-8)}.${file.type.split('/')[1]}`
