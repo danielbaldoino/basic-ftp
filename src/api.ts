@@ -1,10 +1,7 @@
-import { Client } from 'basic-ftp'
-// import { File } from 'buffer'
 import cors from 'cors'
 import express from 'express'
-// import fs from 'fs/promises'
-// import os from 'os'
-// import path from 'path'
+import fileUpload from 'express-fileupload'
+import { FtpOptions, ftpUpload } from './utils/ftp'
 
 export const app = express()
 
@@ -14,84 +11,34 @@ app.use(express.json())
 app.use(express.raw({ type: 'application/vnd.custom-type' }))
 app.use(express.text({ type: 'text/html' }))
 
+app.use(fileUpload({ limits: { files: 1, fileSize: 50 * 1024 * 1024 } }))
+
 app.get('/', (req, res) => {
   res.status(200).send({ status: 'ok' })
 })
 
 app.post('/', async (req, res) => {
-  const { remotePath } = req.body as { remotePath: string }
+  const file = req.files.file as fileUpload.UploadedFile
 
-  res.status(200).send({ remotePath })
+  if (!file) {
+    res.status(400).send({ error: 'No file provided' })
+    return
+  }
 
-  // const { file, remotePath } = req.body as { file: File; remotePath: string }
+  const options = req.body as FtpOptions
 
-  // const name = `${Math.random().toString(36).slice(-8)}.${file.type.split('/')[1]}`
-
-  // const tempStoragePath = path.join(os.tmpdir(), name)
-
-  // const buffer = Buffer.from(await file.arrayBuffer())
-
-  // const ftp = new Client()
-
-  // try {
-  //   await fs.writeFile(tempStoragePath, buffer)
-
-  //   await ftp.access({
-  //     host: process.env.FTP_HOST,
-  //     user: process.env.FTP_USER,
-  //     password: process.env.FTP_PASS,
-  //     secure: false,
-  //     secureOptions: { timeout: 100000 },
-  //   })
-
-  //   await ftp.cd(process.env.FTP_PATH || '/')
-
-  //   await ftp.cd(remotePath)
-
-  //   const info = await ftp.uploadFrom(tempStoragePath, name)
-
-  //   console.info('File sent:', info)
-
-  //   const url = `${process.env.FTP_URL}/${remotePath}/${name}`
-
-  //   res.status(200).send({ url })
-  // } catch (error) {
-  //   console.error('Error Uploading File:', error)
-
-  //   res.status(500).send(error)
-  // } finally {
-  //   await fs.unlink(tempStoragePath)
-
-  //   ftp.close()
-  // }
-})
-
-app.delete('/', async (req, res) => {
-  const { url } = req.body as { url: string }
-
-  const ftp = new Client()
+  if (!options) {
+    res.status(400).send({ error: 'No options provided' })
+    return
+  }
 
   try {
-    ftp.access({
-      host: process.env.FTP_HOST,
-      user: process.env.FTP_USER,
-      password: process.env.FTP_PASS,
-      secure: false,
-      secureOptions: { timeout: 100000 },
-    })
+    const url = await ftpUpload(file, options)
 
-    await ftp.cd(process.env.FTP_PATH || '/')
+    if (url) res.status(200).send({ url })
 
-    const path = url.replace(`${process.env.FTP_URL}/`, '')
-
-    const info = await ftp.remove(path)
-
-    res.status(200).send(info)
+    res.status(500).send({ error: 'Something went wrong' })
   } catch (error) {
-    console.error('Error Deleting File:', error)
-
-    res.status(500).send(error)
-  } finally {
-    ftp.close()
+    res.status(500).send({ error })
   }
 })
