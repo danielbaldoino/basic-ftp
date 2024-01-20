@@ -1,10 +1,10 @@
 import { Client } from 'basic-ftp'
-import { File } from 'buffer'
+// import { File } from 'buffer'
 import cors from 'cors'
 import express from 'express'
-import fs from 'fs/promises'
-import os from 'os'
-import path from 'path'
+// import fs from 'fs/promises'
+// import os from 'os'
+// import path from 'path'
 
 export const app = express()
 
@@ -19,47 +19,51 @@ app.get('/', (req, res) => {
 })
 
 app.post('/', async (req, res) => {
-  const { file, remotePath } = req.body as { file: File; remotePath: string }
+  const { remotePath } = req.body as { remotePath: string }
 
-  const name = `${Math.random().toString(36).slice(-8)}.${file.type.split('/')[1]}`
+  res.status(200).send({ remotePath })
 
-  const tempStoragePath = path.join(os.tmpdir(), name)
+  // const { file, remotePath } = req.body as { file: File; remotePath: string }
 
-  const buffer = Buffer.from(await file.arrayBuffer())
+  // const name = `${Math.random().toString(36).slice(-8)}.${file.type.split('/')[1]}`
 
-  const ftp = new Client()
+  // const tempStoragePath = path.join(os.tmpdir(), name)
 
-  try {
-    await fs.writeFile(tempStoragePath, buffer)
+  // const buffer = Buffer.from(await file.arrayBuffer())
 
-    await ftp.access({
-      host: process.env.FTP_HOST,
-      user: process.env.FTP_USER,
-      password: process.env.FTP_PASS,
-      secure: false,
-      secureOptions: { timeout: 100000 },
-    })
+  // const ftp = new Client()
 
-    await ftp.cd(process.env.FTP_PATH || '/')
+  // try {
+  //   await fs.writeFile(tempStoragePath, buffer)
 
-    await ftp.cd(remotePath)
+  //   await ftp.access({
+  //     host: process.env.FTP_HOST,
+  //     user: process.env.FTP_USER,
+  //     password: process.env.FTP_PASS,
+  //     secure: false,
+  //     secureOptions: { timeout: 100000 },
+  //   })
 
-    const info = await ftp.uploadFrom(tempStoragePath, name)
+  //   await ftp.cd(process.env.FTP_PATH || '/')
 
-    console.info('File sent:', info)
+  //   await ftp.cd(remotePath)
 
-    const url = `${process.env.FTP_URL}/${remotePath}/${name}`
+  //   const info = await ftp.uploadFrom(tempStoragePath, name)
 
-    res.status(200).send({ url })
-  } catch (error) {
-    console.error('Error Uploading File:', error)
+  //   console.info('File sent:', info)
 
-    res.status(500).send(error)
-  } finally {
-    await fs.unlink(tempStoragePath)
+  //   const url = `${process.env.FTP_URL}/${remotePath}/${name}`
 
-    ftp.close()
-  }
+  //   res.status(200).send({ url })
+  // } catch (error) {
+  //   console.error('Error Uploading File:', error)
+
+  //   res.status(500).send(error)
+  // } finally {
+  //   await fs.unlink(tempStoragePath)
+
+  //   ftp.close()
+  // }
 })
 
 app.delete('/', async (req, res) => {
