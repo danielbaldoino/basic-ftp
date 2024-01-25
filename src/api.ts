@@ -42,7 +42,7 @@ app.post('/signed-url', (req, res) => {
     res.status(401).send({ error: 'Unauthorized' })
     return
   }
-  
+
   const { host, password, user, path, remotePath, url } = req.body
 
   if (!host || !password || !user) {
@@ -78,9 +78,7 @@ app.post('/upload', verifyCredential, async (req, res) => {
   }
 
   try {
-    console.log('credential', (req as any).decoded)
-
-    const url = await ftpUpload(file, options)
+    const url = await ftpUpload(file, { ...options, ...(req as any).decoded })
 
     if (url) res.status(200).send({ url })
 
