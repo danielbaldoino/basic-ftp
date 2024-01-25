@@ -38,6 +38,11 @@ app.get('/', (req, res) => {
 })
 
 app.post('/signed-url', (req, res) => {
+  if (req.headers.api_key !== process.env.API_KEY) {
+    res.status(400).send({ error: 'Bad request' })
+    return
+  }
+
   const { host, password, user, path, remotePath, url } = req.body
 
   if (!host || !password || !user) {
