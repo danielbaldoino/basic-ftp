@@ -63,8 +63,6 @@ app.post('/signed-url', (req, res) => {
 })
 
 app.post('/upload', verifyCredential, async (req, res) => {
-  console.log(req.files)
-
   const file = req.files.file as fileUpload.UploadedFile
 
   if (!file) {
@@ -82,9 +80,11 @@ app.post('/upload', verifyCredential, async (req, res) => {
   try {
     const url = await ftpUpload(file, { ...options, ...(req as any).decoded })
 
-    if (url) res.status(200).send({ url })
-
-    res.status(500).send({ error: 'Something went wrong' })
+    if (url) {
+      res.status(200).send({ url })
+    } else {
+      res.status(500).send({ error: 'Something went wrong' })
+    }
   } catch (error) {
     res.status(500).send({ error })
   }

@@ -32,27 +32,31 @@ export const ftpUpload = async (
   file: UploadedFile,
   options: FtpOptions,
 ): Promise<string> => {
-  const ftp = new Client()
-
-  const name = `${randomBytes(64).toString('hex')}.${file.mimetype.split('/').pop()}`
-
-  const tempFilePath = path.join(os.tmpdir(), name)
-
   try {
-    await ftpConnect(ftp, options)
+    const ftp = new Client()
 
-    await fs.writeFile(tempFilePath, file.data)
+    const name = `${randomBytes(64).toString('hex')}.${file.mimetype.split('/').pop()}`
 
-    const info = await ftp.uploadFrom(tempFilePath, name)
+    const tempFilePath = path.join(os.tmpdir(), name)
 
-    console.info('File sent:', info)
+    try {
+      await ftpConnect(ftp, options)
 
-    return `${options.url}/${options.remotePath}/${name}`
-  } catch (error) {
-    console.error(error)
-  } finally {
-    await fs.unlink(tempFilePath)
-    ftp.close()
+      await fs.writeFile(tempFilePath, file.data)
+
+      const info = await ftp.uploadFrom(tempFilePath, name)
+
+      console.info('File sent:', info)
+
+      return `${options.url}/${options.remotePath}/${name}`
+    } catch (error) {
+      console.error(error)
+    } finally {
+      await fs.unlink(tempFilePath)
+      ftp.close()
+    }
+  } catch (e) {
+    console.log(e)
   }
 
   return null
