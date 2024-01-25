@@ -12,7 +12,12 @@ app.use(express.json())
 app.use(express.raw({ type: 'application/vnd.custom-type' }))
 app.use(express.text({ type: 'text/html' }))
 
-app.use(fileUpload({ limits: { files: 1, fileSize: 50 * 1024 * 1024 } }))
+app.use(
+  fileUpload({
+    limits: { files: 1, fileSize: 50 * 1024 * 1024 },
+    useTempFiles: true,
+  }),
+)
 
 const verifyCredential = (req, res, next) => {
   const credential = req.query.credential

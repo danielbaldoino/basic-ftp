@@ -1,9 +1,6 @@
 import { Client } from 'basic-ftp'
 import { randomBytes } from 'crypto'
 import { UploadedFile } from 'express-fileupload'
-import fs from 'fs/promises'
-import os from 'os'
-import path from 'path'
 
 export type FtpOptions = {
   host: string
@@ -37,14 +34,10 @@ export const ftpUpload = async (
 
     const name = `${randomBytes(8).toString('hex')}.${file.mimetype.split('/').pop()}`
 
-    const tempFilePath = path.join(os.tmpdir(), name)
-
     try {
       await ftpConnect(ftp, options)
 
-      await fs.writeFile(tempFilePath, file.data)
-
-      const info = await ftp.uploadFrom(tempFilePath, name)
+      const info = await ftp.uploadFrom(file.tempFilePath, name)
 
       console.info('File sent:', info)
 
@@ -52,7 +45,6 @@ export const ftpUpload = async (
     } catch (error) {
       console.info(error)
     } finally {
-      await fs.unlink(tempFilePath)
       ftp.close()
     }
   } catch (error) {
