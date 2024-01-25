@@ -35,7 +35,7 @@ export const ftpUpload = async (
   try {
     const ftp = new Client()
 
-    const name = `${randomBytes(64).toString('hex')}.${file.mimetype.split('/').pop()}`
+    const name = `${randomBytes(8).toString('hex')}.${file.mimetype.split('/').pop()}`
 
     const tempFilePath = path.join(os.tmpdir(), name)
 
@@ -50,13 +50,13 @@ export const ftpUpload = async (
 
       return `${options.url}/${options.remotePath}/${name}`
     } catch (error) {
-      console.error(error)
+      console.info(error)
     } finally {
       await fs.unlink(tempFilePath)
       ftp.close()
     }
-  } catch (e) {
-    console.log(e)
+  } catch (error) {
+    console.info(error)
   }
 
   return null
