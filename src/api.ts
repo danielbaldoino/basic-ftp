@@ -31,8 +31,6 @@ const verifyCredential = (req, res, next) => {
       return res.status(401).json({ error: 'Credential invalid' })
     }
 
-    console.log(decoded)
-
     req.decoded = decoded
     next()
   })
