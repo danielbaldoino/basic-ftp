@@ -42,9 +42,7 @@ app.post('/signed-url', (req, res) => {
     res.status(401).send({ error: 'Unauthorized' })
     return
   }
-
-  console.log('Body', req.body)
-
+  
   const { host, password, user, path, remotePath, url } = req.body
 
   if (!host || !password || !user) {
