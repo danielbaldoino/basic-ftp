@@ -62,7 +62,7 @@ app.post('/signed-url', (req, res) => {
   res.json(signedUrl)
 })
 
-app.post('/', verifyCredential, async (req, res) => {
+app.post('/upload', verifyCredential, async (req, res) => {
   const file = req.files.file as fileUpload.UploadedFile
 
   if (!file) {
