@@ -43,6 +43,8 @@ app.post('/signed-url', (req, res) => {
     return
   }
 
+  console.log('Body', req.body)
+
   const { host, password, user, path, remotePath, url } = req.body
 
   if (!host || !password || !user) {
