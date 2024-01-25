@@ -39,7 +39,7 @@ app.get('/', (req, res) => {
 
 app.post('/signed-url', (req, res) => {
   if (req.headers.api_key !== process.env.API_KEY) {
-    res.status(400).send({ error: 'Bad request' })
+    res.status(401).send({ error: 'Unauthorized' })
     return
   }
 
