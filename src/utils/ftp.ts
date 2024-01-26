@@ -21,6 +21,8 @@ const ftpConnect = async (ftp: Client, options: FtpOptions): Promise<void> => {
     secureOptions: { timeout: 100000 },
   })
 
+  console.log('Connected to FTP')
+
   await ftp.cd(options.path || '/')
 
   await ftp.cd(options.remotePath)
@@ -48,13 +50,13 @@ export const ftpUpload = async (
 
       return `${options.url}/${options.remotePath}/${name}`
     } catch (error) {
-      console.info(error)
+      console.error(error)
     } finally {
       await fs.unlink(file.tempFilePath)
       ftp.close()
     }
   } catch (error) {
-    console.info(error)
+    console.error(error)
   }
 
   return null
