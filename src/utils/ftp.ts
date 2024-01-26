@@ -13,6 +13,8 @@ export type FtpOptions = {
 }
 
 const ftpConnect = async (ftp: Client, options: FtpOptions): Promise<void> => {
+  console.info('Options:', options)
+
   await ftp.access({
     host: options.host,
     user: options.user,
